@@ -2,24 +2,39 @@
 // Created by Keith_Lee on 2018. 10. 1..
 //
 #include <iostream>
+#include <math.h>
 
 using namespace std;
 
-double calculateBalance(double x1, double x2, double m1, double m2){
-    double start = x1;
-    if(x1 > x2){
-        start = x2;
-    }
+int N;
+int calCount;
+double pointX[10];
+double pointMeasure[10];
 
-    for(double i=start; i<x2; i+=0.0000000001){
-        cout << "계산중" << '\n';
-        if((x1-i)*(x1-i) == (x2-i)*(x2-i)){
-            start = i;
-            break;
+double calculate(double x1, double x2, double current){
+    double forceTotal = 0;
+
+    for(int i=0; i<N; i++){
+        double distance = fabs(pointX[i]-current);
+
+        if(pointX[i] < current){
+            forceTotal += pointMeasure[i] / (distance*distance);
+        }
+        else if(pointX[i] > current){
+            forceTotal -= pointMeasure[i] / (distance*distance);
         }
     }
 
-    return start;
+    if(fabs(x2 - x1) < 1e-13 || calCount++ > 500){
+        return current;
+    }
+
+    if(forceTotal <= 0){
+        return calculate(x1, current, (x1+current)/2);
+    }
+    else if(forceTotal > 0){
+        return calculate(current, x2, (current+x2)/2);
+    }
 }
 
 int main(){
@@ -27,30 +42,23 @@ int main(){
     cin >> caseNum;
 
     for(int i=0; i<caseNum; i++){
-        int N;
+        for(int j=0; j<10; j++){
+            pointX[j] = 0;
+            pointMeasure[j] = 0;
+        }
         cin >> N;
+        calCount = 0;
 
-        double pointX[N];
-        double pointMeasure[N];
-        int inputX;
-        int inputMeasure;
         for(int j=0; j<N; j++){
-            cin >> inputX;
-            pointX[j] = double(inputX);
+            scanf("%lf", &pointX[j]);
         }
         for(int j=0; j<N; j++){
-            cin >> inputMeasure;
-            pointMeasure[j] = double(inputMeasure);
-        }
-
-        double pointBalance[N-1];
-        for(int j=0; j<N-1; j++){
-            pointBalance[j] = calculateBalance(pointX[j], pointX[j+1], pointMeasure[j], pointMeasure[j+1]);
+            scanf("%lf", &pointMeasure[j]);
         }
 
         cout << '#' << i+1 << ' ';
         for(int j=0; j<N-1; j++){
-            printf("%.10f ", pointBalance[j]);
+            printf("%.10lf ", calculate(pointX[j], pointX[j+1], (pointX[j] + pointX[j+1])/2));
         }
         cout << '\n';
     }
