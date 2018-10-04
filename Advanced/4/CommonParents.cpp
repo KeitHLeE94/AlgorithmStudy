@@ -3,51 +3,28 @@
 //
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
-int nodeCount = 0;
+int nodeCount;
 
-struct Node{
-    int data;
-    Node* left;
-    Node* right;
-    Node* parent;
-    int parentInfo;
-    bool visit;
-};
-
-Node* find_node(vector<Node*> nodeList, int info){
-    for(int i=0; i<nodeList.size(); i++){
-        if(nodeList[i]->data == info){
-            return nodeList[i];
-        }
-    }
-}
-
-void search_ancestor(vector<Node*> nodeList, vector<int>* ancestor, Node* current){
-    if(current->parent == NULL){
+void search_ancestor(int nodeList[], vector<int>* ancestor, int current){
+    if(nodeList[current] == 0){
         return;
-    }
-    for(int i=1; i<10001; i++){
-        if(i == current->parentInfo){
-            ancestor->push_back(i);
-            search_ancestor(nodeList, ancestor, current->parent);
-        }
-    }
-}
-
-void DFS(Node* current){
-    nodeCount++;
-    current->visit = true;
-    if(current->left && !current->left->visit){
-        DFS(current->left);
-    }
-    if(current->right && !current->right->visit){
-        DFS(current->right);
     }
     else{
-        return;
+        ancestor->push_back(nodeList[current]);
+        search_ancestor(nodeList, ancestor, nodeList[current]);
+    }
+}
+
+void child_count(int nodeList[], int root){
+    for(int i=0; i<10001; i++){
+        if(nodeList[i] == root){
+            nodeCount++;
+            child_count(nodeList, i);
+        }
     }
 }
 
@@ -56,74 +33,39 @@ int main(){
     cin >> caseNum;
 
     for(int i=0; i<caseNum; i++){
-        nodeCount = 0;
-        vector<Node*> nodeList;
+        nodeCount = 1;
 
         int V, E, node1, node2;
         cin >> V >> E >> node1 >> node2;
 
+        int nodeList[10001] = {0, };
+
         int parent, child;
-
-        Node* root = new Node;
-        root->data = 1;
-        root->left = NULL;
-        root->right = NULL;
-        root->parent = NULL;
-        root->visit = false;
-
-        nodeList.push_back(root);
-
         for(int j=0; j<E; j++){
             cin >> parent >> child;
-
-            Node* parentNode = find_node(nodeList, parent);
-
-            Node* newNode = new Node;
-            newNode->data = child;
-            newNode->left = NULL;
-            newNode->right = NULL;
-            newNode->parent = parentNode;
-            newNode->parentInfo = parent;
-            newNode->visit = false;
-
-            if(parentNode->left == NULL){
-                parentNode->left = newNode;
-            }
-            else if(parentNode->left != NULL && parentNode->right == NULL){
-                parentNode->right = newNode;
-            }
-
-            nodeList.push_back(newNode);
+            nodeList[child] = parent;
         }
 
         vector<int> ancestor1, ancestor2;
 
-        Node* child1 = find_node(nodeList, node1);
-        Node* child2 = find_node(nodeList, node2);
-
-        search_ancestor(nodeList, &ancestor1, child1);
-        search_ancestor(nodeList, &ancestor2, child2);
-
-        for(int j=0; j<ancestor1.size(); j++){
-            cout << ancestor1[j] << ' ';
-        }
-        cout << '\n';
-
-        for(int j=0; j<ancestor2.size(); j++){
-            cout << ancestor2[j] << ' ';
-        }
-        cout << '\n';
+        search_ancestor(nodeList, &ancestor1, node1);
+        search_ancestor(nodeList, &ancestor2, node2);
 
         int result = 0;
+
+        vector<int> common_ancestors;
         for(int j=0; j<ancestor1.size(); j++){
-            for(int k=0; k<ancestor2.size(); k++){
+            for(int k=ancestor2.size()-1; k>=0; k--){
                 if(ancestor1[j] == ancestor2[k]){
-                    result = max(ancestor1[j], result);
+                    common_ancestors.push_back(ancestor1[j]);
                 }
             }
         }
 
-        DFS(find_node(nodeList, result));
+        result = common_ancestors[0];
+
+        child_count(nodeList, result);
+
         cout << '#' << i+1 << ' ' << result << ' ' << nodeCount << '\n';
     }
 
