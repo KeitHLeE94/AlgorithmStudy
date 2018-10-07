@@ -7,13 +7,12 @@
 
 using namespace std;
 
+int N;
 int map[100][100] = {-1, };
-bool visit[100][100] = {false, };
 int dist[100][100] = {0, };
 
 void BFS(queue<pair<int, int>>* Queue, int currentX, int currentY){
-    dist[currentX][currentY] = 0;
-    visit[currentX][currentY] = true;
+    dist[currentX][currentY] = map[currentX][currentY];
     Queue->push(make_pair(currentX, currentY));
 
     while(!Queue->empty()){
@@ -23,16 +22,16 @@ void BFS(queue<pair<int, int>>* Queue, int currentX, int currentY){
 
         vector<pair<int, int>> candidates;
 
-        if(0 <= map[tempX-1][tempY] && map[tempX-1][tempY] < 10){
+        if(0 <= tempX-1 && tempX-1 < N && 0 <= tempY && tempY < N){
             candidates.push_back(make_pair(tempX-1, tempY));
         }
-        if(0 <= map[tempX+1][tempY] && map[tempX+1][tempY] < 10){
+        if(0 <= tempX+1 && tempX+1 < N && 0 <= tempY && tempY < N){
             candidates.push_back(make_pair(tempX+1, tempY));
         }
-        if(0 <= map[tempX][tempY-1] && map[tempX][tempY-1] < 10){
+        if(0 <= tempX && tempX < N && 0 <= tempY-1 && tempY-1 < N){
             candidates.push_back(make_pair(tempX, tempY-1));
         }
-        if(0 <= map[tempX][tempY+1] && map[tempX][tempY+1] < 10){
+        if(0 <= tempX && tempX < N && 0 <= tempY+1 && tempY+1 < N){
             candidates.push_back(make_pair(tempX, tempY+1));
         }
 
@@ -40,10 +39,9 @@ void BFS(queue<pair<int, int>>* Queue, int currentX, int currentY){
             int nextX = candidates[i].first;
             int nextY = candidates[i].second;
 
-            if(!visit[nextX][nextY]){
+            if(dist[tempX][tempY] + map[nextX][nextY] < dist[nextX][nextY]){
                 Queue->push(make_pair(nextX, nextY));
-                dist[nextX][nextY] = dist[tempX][tempY] + map[tempX][tempY];
-                visit[nextX][nextY] = true;
+                dist[nextX][nextY] = dist[tempX][tempY] + map[nextX][nextY];
             }
         }
     }
@@ -57,11 +55,9 @@ int main(){
         for(int j=0; j<100; j++){
             for(int k=0; k<100; k++){
                 map[j][k] = -1;
-                visit[j][k] = false;
-                dist[j][k] = 0;
+                dist[j][k] = 9999;
             }
         }
-        int N;
         cin >> N;
 
         string row;
