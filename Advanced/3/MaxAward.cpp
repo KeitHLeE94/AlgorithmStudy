@@ -13,8 +13,6 @@ string cards;
 char temp[256];
 
 void get_award(int count, int current){
-    cout << cards << '\n';
-    cout << count << ", " << current << '\n';
     if(count == changeNum){
         result = max(result, stoi(cards));
         return;
