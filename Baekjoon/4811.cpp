@@ -4,52 +4,42 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <string.h>
 
 using namespace std;
 
 int N;
+int result;
+long long DP[30][30];
+
+long long ffind(int wNum, int hNum){
+    if((wNum == 1 && hNum == 0) || wNum == 0){
+        return 1;
+    }
+
+    long long &ret = DP[wNum][hNum];
+    if(ret != 0){
+        return ret;
+    }
+
+    ret = 0;
+    ret += ffind(wNum-1, hNum+1);
+    if(hNum > 0){
+        ret += ffind(wNum, hNum-1);
+    }
+
+    return ret;
+}
 
 int main(){
-    while(true){
-        vector<char> str;
+    memset(DP, 0, sizeof(DP));
 
+    while(true){
         cin >> N;
         if(N == 0){
             break;
         }
-
-        int result = 0;
-
-        for(int i=0; i<N; i++){
-            str.push_back('H');
-        }
-        for(int i=0; i<N; i++){
-            str.push_back('W');
-        }
-
-        do{
-            int sum = 0;
-            int flag = 0;
-
-            for(int i=0; i<str.size(); i++){
-                if(str[i] == 'W'){
-                    sum++;
-                }
-                else if(str[i] == 'H'){
-                    sum--;
-                }
-
-                if(sum < 0){
-                    flag = 1;
-                    break;
-                }
-            }
-            if(flag == 0){
-                result++;
-            }
-        } while(next_permutation(str.begin(), str.end()));
-
-        cout << result << '\n';
+        cout << ffind(N-1, 1) << '\n';
     }
 
     return 0;
