@@ -4,29 +4,28 @@
 #include <iostream>
 #include <queue>
 #include <vector>
-#include <cstring>
+#include <algorithm>
 
 using namespace std;
 
 int N, M;
 int map[8][8];
 int temp_map[8][8];
-int dx[4] = {0, 0, -1, 1};
+int dx[4] = {0, 0, 1, -1};
 int dy[4] = {1, -1, 0, 0};
-int answer = 0;
+int result = 0;
 
 vector<pair<int, int>> viruses;
 
 void BFS(){
     int wall_map[8][8];
-    memset(wall_map, -1, sizeof(wall_map));
     for(int i=0; i<N; i++){
         for(int j=0; j<M; j++){
             wall_map[i][j] = temp_map[i][j];
         }
     }
-
     queue<pair<int, int>> Queue;
+
     for(int i=0; i<viruses.size(); i++){
         Queue.push(viruses[i]);
     }
@@ -49,19 +48,19 @@ void BFS(){
         }
     }
 
-    int safe = 0;
+    int safeCount = 0;
     for(int i=0; i<N; i++){
         for(int j=0; j<M; j++){
             if(wall_map[i][j] == 0){
-                safe++;
+                safeCount++;
             }
         }
     }
 
-    answer = max(answer, safe);
+    result = max(result, safeCount);
 }
 
-void makeWall(int cnt){
+void DFS(int cnt){
     if(cnt == 3){
         BFS();
         return;
@@ -71,7 +70,7 @@ void makeWall(int cnt){
         for(int j=0; j<M; j++){
             if(temp_map[i][j] == 0){
                 temp_map[i][j] = 1;
-                makeWall(cnt+1);
+                DFS(cnt+1);
                 temp_map[i][j] = 0;
             }
         }
@@ -79,8 +78,6 @@ void makeWall(int cnt){
 }
 
 int main(){
-    memset(map, -1, sizeof(map));
-    memset(temp_map, -1, sizeof(temp_map));
     cin >> N >> M;
 
     for(int i=0; i<N; i++){
@@ -93,17 +90,9 @@ int main(){
         }
     }
 
-    for(int i=0; i<N; i++){
-        for(int j=0; j<M; j++){
-            if(map[i][j] == 0){
-                temp_map[i][j] = 1;
-                makeWall(1);
-                temp_map[i][j] = 0;
-            }
-        }
-    }
+    DFS(0);
 
-    cout << answer << '\n';
+    cout << result << '\n';
 
     return 0;
 }

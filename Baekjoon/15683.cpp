@@ -1,78 +1,71 @@
 //
-// Created by Keith_Lee on 16/10/2018.
+// Created by Keith_Lee on 18/10/2018.
 //
 #include <iostream>
-#include <vector>
-#include <cstring>
 #include <algorithm>
+#include <vector>
 
 using namespace std;
+
+struct CCTV{
+    int x;
+    int y;
+    int type;
+    bool visit;
+};
 
 int N, M;
 int map[8][8];
 int temp_map[8][8];
 int result = 9999999;
-vector<pair<int, int>> tvs;
 
-void go_left(int x, int y){
-    for(int i=y; i>=0; i--){
-        if(temp_map[x][i] == 6){
+vector<CCTV> cctvs;
+
+void go_left(CCTV cctv, int past_map[8][8]){
+    for(int i=cctv.y-1; i>=0; i--){
+        if(past_map[cctv.x][i] == 6){
             break;
         }
-        if(temp_map[x][i] == 0){
-            temp_map[x][i] = 7;
+        if(past_map[cctv.x][i] == 0){
+            past_map[cctv.x][i] = 7;
         }
     }
 }
 
-void go_right(int x, int y){
-    for(int i=y; i<M; i++){
-        if(temp_map[x][i] == 6){
+void go_right(CCTV cctv, int past_map[8][8]){
+    for(int i=cctv.y+1; i<M; i++){
+        if(past_map[cctv.x][i] == 6){
             break;
         }
-        if(temp_map[x][i] == 0){
-            temp_map[x][i] = 7;
+        if(past_map[cctv.x][i] == 0){
+            past_map[cctv.x][i] = 7;
         }
     }
 }
 
-void go_up(int x, int y){
-    for(int i=x; i>=0; i--){
-        if(temp_map[i][y] == 6){
+void go_up(CCTV cctv, int past_map[8][8]){
+    for(int i=cctv.x-1; i>=0; i--){
+        if(past_map[i][cctv.y] == 6){
             break;
         }
-        if(temp_map[i][y] == 0){
-            temp_map[i][y] = 7;
+        if(past_map[i][cctv.y] == 0){
+            past_map[i][cctv.y] = 7;
         }
     }
 }
 
-void go_down(int x, int y){
-    for(int i=x; i<N; i++){
-        if(temp_map[i][y] == 6){
+void go_down(CCTV cctv, int past_map[8][8]){
+    for(int i=cctv.x+1; i<N; i++){
+        if(past_map[i][cctv.y] == 6){
             break;
         }
-        if(temp_map[i][y] == 0){
-            temp_map[i][y] = 7;
+        if(past_map[i][cctv.y] == 0){
+            past_map[i][cctv.y] = 7;
         }
     }
 }
 
-int zero_count(){
-    int result = 0;
-
-    for(int i=0; i<N; i++){
-        for(int j=0; j<M; j++){
-            if(temp_map[i][j] == 0){
-                result++;
-            }
-        }
-    }
-
-    return result;
-}
-
-void map_initialize(){
+void temp_initialize(){
     for(int i=0; i<N; i++){
         for(int j=0; j<M; j++){
             temp_map[i][j] = map[i][j];
@@ -80,202 +73,164 @@ void map_initialize(){
     }
 }
 
-void edit_map(int camX, int camY){
-    bool changed;
-    int direct_map[8][8];
+void DFS(int cnt, int past_map[8][8]){
+    int current_map[8][8];
 
-    if(map[camX][camY] == 1){
-        for(int i=0; i<4; i++){
-            map_initialize();
-
-            changed = false;
-
-            if(i == 0){
-                go_left(camX, camY);
-            }
-            else if(i == 1){
-                go_right(camX, camY);
-            }
-            else if(i == 2){
-                go_up(camX, camY);
-            }
-            else if(i == 3){
-                go_down(camX, camY);
-            }
-
-            int zeroCount = zero_count();
-
-            if(result > zeroCount){
-                changed = true;
-                result = zeroCount;
-            }
-
-            if(changed){
-                for(int j=0; j<N; j++){
-                    for(int k=0; k<M; k++){
-                        direct_map[j][k] = temp_map[j][k];
-                    }
+    if(cnt == cctvs.size()){
+        int unseen = 0;
+        for(int i=0; i<N; i++){
+            for(int j=0; j<M; j++){
+                if(past_map[i][j] == 0){
+                    unseen++;
                 }
             }
         }
+
+        result = min(result, unseen);
+
+        return;
     }
-    else if(map[camX][camY] == 2){
+
+    if(cctvs[cnt].type == 1 && !cctvs[cnt].visit){
+        for(int i=0; i<4; i++){
+            for(int i=0; i<N; i++){
+                for(int j=0; j<M; j++){
+                    current_map[i][j] = past_map[i][j];
+                }
+            }
+            if(i == 0){
+                go_left(cctvs[cnt], current_map);
+            }
+            else if(i == 1){
+                go_right(cctvs[cnt], current_map);
+            }
+            else if(i == 2){
+                go_up(cctvs[cnt], current_map);
+            }
+            else if(i == 3){
+                go_down(cctvs[cnt], current_map);
+            }
+            cctvs[cnt].visit = true;
+            DFS(cnt+1, current_map);
+            temp_initialize();
+            cctvs[cnt].visit = false;
+        }
+    }
+    else if(cctvs[cnt].type == 2 && !cctvs[cnt].visit){
         for(int i=0; i<2; i++){
-            map_initialize();
-
-            changed = false;
-
-            if(i == 0){
-                go_left(camX, camY);
-                go_right(camX, camY);
-            }
-            else if(i == 1){
-                go_up(camX, camY);
-                go_down(camX, camY);
-            }
-
-            int zeroCount = zero_count();
-
-            if(result > zeroCount){
-                changed = true;
-                result = zeroCount;
-            }
-            if(changed){
-                for(int j=0; j<N; j++){
-                    for(int k=0; k<M; k++){
-                        direct_map[j][k] = temp_map[j][k];
-                    }
+            for(int i=0; i<N; i++){
+                for(int j=0; j<M; j++){
+                    current_map[i][j] = past_map[i][j];
                 }
             }
-        }
-    }
-    else if(map[camX][camY] == 3){
-        for(int i=0; i<4; i++){
-            map_initialize();
-
-            changed = false;
-
             if(i == 0){
-                go_up(camX, camY);
-                go_right(camX, camY);
+                go_down(cctvs[cnt], current_map);
+                go_up(cctvs[cnt], current_map);
             }
             else if(i == 1){
-                go_right(camX, camY);
-                go_down(camX, camY);
+                go_left(cctvs[cnt], current_map);
+                go_right(cctvs[cnt], current_map);
+            }
+            cctvs[cnt].visit = true;
+            DFS(cnt+1, current_map);
+            temp_initialize();
+            cctvs[cnt].visit = false;
+        }
+    }
+    else if(cctvs[cnt].type == 3 && !cctvs[cnt].visit){
+        for(int i=0; i<4; i++){
+            for(int i=0; i<N; i++){
+                for(int j=0; j<M; j++){
+                    current_map[i][j] = past_map[i][j];
+                }
+            }
+            if(i == 0){
+                go_up(cctvs[cnt], current_map);
+                go_right(cctvs[cnt], current_map);
+            }
+            else if(i == 1){
+                go_right(cctvs[cnt], current_map);
+                go_down(cctvs[cnt], current_map);
             }
             else if(i == 2){
-                go_down(camX, camY);
-                go_left(camX, camY);
+                go_down(cctvs[cnt], current_map);
+                go_left(cctvs[cnt], current_map);
             }
             else if(i == 3){
-                go_left(camX, camY);
-                go_up(camX, camY);
+                go_left(cctvs[cnt], current_map);
+                go_up(cctvs[cnt], current_map);
             }
-
-            int zeroCount = zero_count();
-
-            if(result > zeroCount){
-                changed = true;
-                result = zeroCount;
-            }
-            if(changed){
-                for(int j=0; j<N; j++){
-                    for(int k=0; k<M; k++){
-                        direct_map[j][k] = temp_map[j][k];
-                    }
-                }
-            }
+            cctvs[cnt].visit = true;
+            DFS(cnt+1, current_map);
+            temp_initialize();
+            cctvs[cnt].visit = false;
         }
     }
-    else if(map[camX][camY] == 4){
+    else if(cctvs[cnt].type == 4 && !cctvs[cnt].visit){
         for(int i=0; i<4; i++){
-            map_initialize();
-
-            changed = false;
-
+            for(int i=0; i<N; i++){
+                for(int j=0; j<M; j++){
+                    current_map[i][j] = past_map[i][j];
+                }
+            }
             if(i == 0){
-                go_left(camX, camY);
-                go_up(camX, camY);
-                go_right(camX, camY);
+                go_left(cctvs[cnt], current_map);
+                go_up(cctvs[cnt], current_map);
+                go_right(cctvs[cnt], current_map);
             }
             else if(i == 1){
-                go_up(camX, camY);
-                go_right(camX, camY);
-                go_down(camX, camY);
+                go_up(cctvs[cnt], current_map);
+                go_right(cctvs[cnt], current_map);
+                go_down(cctvs[cnt], current_map);
             }
             else if(i == 2){
-                go_right(camX, camY);
-                go_down(camX, camY);
-                go_left(camX, camY);
+                go_right(cctvs[cnt], current_map);
+                go_down(cctvs[cnt], current_map);
+                go_left(cctvs[cnt], current_map);
             }
             else if(i == 3){
-                go_down(camX, camY);
-                go_left(camX, camY);
-                go_up(camX, camY);
+                go_down(cctvs[cnt], current_map);
+                go_left(cctvs[cnt], current_map);
+                go_up(cctvs[cnt], current_map);
             }
-
-            int zeroCount = zero_count();
-
-            if(result > zeroCount){
-                changed = true;
-                result = zeroCount;
-            }
-            if(changed){
-                for(int j=0; j<N; j++){
-                    for(int k=0; k<M; k++){
-                        direct_map[j][k] = temp_map[j][k];
-                    }
-                }
-            }
+            cctvs[cnt].visit = true;
+            DFS(cnt+1, current_map);
+            temp_initialize();
+            cctvs[cnt].visit = false;
         }
     }
-    else if(map[camX][camY] == 5){
-        map_initialize();
-        go_left(camX, camY);
-        go_right(camX, camY);
-        go_down(camX, camY);
-        go_up(camX, camY);
-
-        int zeroCount = zero_count();
-
-        if(result > zeroCount){
-            changed = true;
-            result = zeroCount;
-        }
-        if(changed){
-            for(int j=0; j<N; j++){
-                for(int k=0; k<M; k++){
-                    direct_map[j][k] = temp_map[j][k];
-                }
+    else if(cctvs[cnt].type == 5 && !cctvs[cnt].visit){
+        for(int i=0; i<N; i++){
+            for(int j=0; j<M; j++){
+                current_map[i][j] = past_map[i][j];
             }
         }
-    }
-
-    for(int i=0; i<N; i++){
-        for(int j=0; j<M; j++){
-            if(direct_map[i][j] == 7){
-                map[i][j] = 7;
-            }
-        }
+        go_up(cctvs[cnt], current_map);
+        go_right(cctvs[cnt], current_map);
+        go_down(cctvs[cnt], current_map);
+        go_left(cctvs[cnt], current_map);
+        cctvs[cnt].visit = true;
+        DFS(cnt+1, current_map);
+        temp_initialize();
+        cctvs[cnt].visit = false;
     }
 }
 
 int main(){
-    memset(map, -1, sizeof(map));
     cin >> N >> M;
 
     for(int i=0; i<N; i++){
         for(int j=0; j<M; j++){
             cin >> map[i][j];
-            if(map[i][j] != 0 && map[i][j] != 6){
-                tvs.push_back(make_pair(i, j));
+            temp_map[i][j] = map[i][j];
+            if(0 < map[i][j] && map[i][j] < 6){
+                CCTV temp = {i, j, map[i][j], false};
+                cctvs.push_back(temp);
             }
         }
     }
 
-    for(int i=0; i<tvs.size(); i++){
-        edit_map(tvs[i].first, tvs[i].second);
-    }
+    DFS(0, temp_map);
 
     cout << result << '\n';
 

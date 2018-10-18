@@ -29,7 +29,7 @@ void BFS(int startX, int startY){
             int nextX = currentX + dx[i];
             int nextY = currentY + dy[i];
 
-            if(nextX >= 0 && nextX < N && nextY >= 0 && nextY < N){
+            if(nextX >= 0 && nextX < N && nextY >= 0 && nextY < M){
                 if(!visit[nextX][nextY] && map[nextX][nextY] == 1){
                     visit[nextX][nextY] = true;
                     Queue.push(make_pair(nextX, nextY));
@@ -54,7 +54,7 @@ int main(){
         int X, Y;
         for(int i=0; i<K; i++){
             cin >> X >> Y;
-            map[X][Y] = 1;
+            map[Y][X] = 1;
         }
 
         for(int i=0; i<N; i++){

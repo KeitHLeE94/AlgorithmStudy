@@ -2,23 +2,23 @@
 // Created by Keith_Lee on 16/10/2018.
 //
 #include <iostream>
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 using namespace std;
 
 int N;
-int roster[20][20];
-bool visit[20];
+int players[21][21];
+bool used[21];
 int result = 9999999;
 
-void DFS(int start, int cnt){
+void DFS(int cnt, int start){
     if(cnt == N/2){
         vector<int> team_start;
         vector<int> team_link;
 
-        for(int i=0; i<N; i++){
-            if(visit[i]){
+        for(int i=1; i<=N; i++){
+            if(!used[i]){
                 team_start.push_back(i);
             }
             else{
@@ -26,31 +26,23 @@ void DFS(int start, int cnt){
             }
         }
 
-        int score_start = 0;
-        int score_link = 0;
-
-        for(int i=0; i<team_start.size(); i++){
-            for(int j=i+1; j<team_start.size(); j++){
-                int startX = team_start[i];
-                int startY = team_start[j];
-                int linkX = team_link[i];
-                int linkY = team_link[j];
-
-                score_start += (roster[startX][startY] + roster[startY][startX]);
-                score_link += (roster[linkX][linkY] + roster[linkY][linkX]);
+        int startSum = 0;
+        int linkSum = 0;
+        for(int i=0; i<N/2-1; i++){
+            for(int j=i+1; j<N/2; j++){
+                startSum += (players[team_start[i]][team_start[j]] + players[team_start[j]][team_start[i]]);
+                linkSum += (players[team_link[i]][team_link[j]] + players[team_link[j]][team_link[i]]);
             }
         }
 
-        result = min(result, abs(score_start - score_link));
-
-        return;
+        result = min(result, abs(startSum - linkSum));
     }
 
-    for(int i=start+1; i<N; i++){
-        if(!visit[i]){
-            visit[i] = true;
-            DFS(i, cnt+1);
-            visit[i] = false;
+    for(int i=start+1; i<=N; i++){
+        if(!used[i]){
+            used[i] = true;
+            DFS(cnt+1, i);
+            used[i] = false;
         }
     }
 }
@@ -58,9 +50,9 @@ void DFS(int start, int cnt){
 int main(){
     cin >> N;
 
-    for(int i=0; i<N; i++){
-        for(int j=0; j<N; j++){
-            cin >> roster[i][j];
+    for(int i=1; i<=N; i++){
+        for(int j=1; j<=N; j++){
+            cin >> players[i][j];
         }
     }
 
