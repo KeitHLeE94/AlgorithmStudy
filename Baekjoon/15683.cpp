@@ -9,53 +9,107 @@
 using namespace std;
 
 int N, M;
-int dx[4] = {0, 0, 1, -1};
-int dy[4] = {1, -1, 0, 0};
 int map[8][8];
 int temp_map[8][8];
 int result = 9999999;
 vector<pair<int, int>> tvs;
 
+void go_left(int x, int y){
+    for(int i=y; i>=0; i--){
+        if(temp_map[x][i] == 6){
+            break;
+        }
+        if(temp_map[x][i] == 0){
+            temp_map[x][i] = 7;
+        }
+    }
+}
+
+void go_right(int x, int y){
+    for(int i=y; i<M; i++){
+        if(temp_map[x][i] == 6){
+            break;
+        }
+        if(temp_map[x][i] == 0){
+            temp_map[x][i] = 7;
+        }
+    }
+}
+
+void go_up(int x, int y){
+    for(int i=x; i>=0; i--){
+        if(temp_map[i][y] == 6){
+            break;
+        }
+        if(temp_map[i][y] == 0){
+            temp_map[i][y] = 7;
+        }
+    }
+}
+
+void go_down(int x, int y){
+    for(int i=x; i<N; i++){
+        if(temp_map[i][y] == 6){
+            break;
+        }
+        if(temp_map[i][y] == 0){
+            temp_map[i][y] = 7;
+        }
+    }
+}
+
+int zero_count(){
+    int result = 0;
+
+    for(int i=0; i<N; i++){
+        for(int j=0; j<M; j++){
+            if(temp_map[i][j] == 0){
+                result++;
+            }
+        }
+    }
+
+    return result;
+}
+
+void map_initialize(){
+    for(int i=0; i<N; i++){
+        for(int j=0; j<M; j++){
+            temp_map[i][j] = map[i][j];
+        }
+    }
+}
+
 void edit_map(int camX, int camY){
-    int zeroCount;
     bool changed;
     int direct_map[8][8];
 
     if(map[camX][camY] == 1){
         for(int i=0; i<4; i++){
-            for(int j=0; j<N; j++){
-                for(int k=0; k<M; k++){
-                    temp_map[j][k] = map[j][k];
-                }
-            }
+            map_initialize();
+
             changed = false;
-            zeroCount = 0;
 
-            int nextX = camX + dx[i];
-            int nextY = camY + dy[i];
-            while(nextX >= 0 && nextX < N && nextY >= 0 && nextY < M){
-                if(temp_map[nextX][nextY] == 6){
-                    break;
-                }
-                if(temp_map[nextX][nextY] == 0){
-                    temp_map[nextX][nextY] = 7;
-                }
-                nextX += dx[i];
-                nextY += dy[i];
+            if(i == 0){
+                go_left(camX, camY);
+            }
+            else if(i == 1){
+                go_right(camX, camY);
+            }
+            else if(i == 2){
+                go_up(camX, camY);
+            }
+            else if(i == 3){
+                go_down(camX, camY);
             }
 
-            for(int j=0; j<N; j++){
-                for(int k=0; k<M; k++){
-                    if(temp_map[j][k] == 0){
-                        zeroCount++;
-                    }
-                }
-            }
+            int zeroCount = zero_count();
 
             if(result > zeroCount){
                 changed = true;
                 result = zeroCount;
             }
+
             if(changed){
                 for(int j=0; j<N; j++){
                     for(int k=0; k<M; k++){
@@ -67,62 +121,20 @@ void edit_map(int camX, int camY){
     }
     else if(map[camX][camY] == 2){
         for(int i=0; i<2; i++){
-            for(int j=0; j<N; j++){
-                for(int k=0; k<M; k++){
-                    temp_map[j][k] = map[j][k];
-                }
-            }
+            map_initialize();
+
             changed = false;
-            zeroCount = 0;
 
             if(i == 0){
-                for(int j=camY-1; j>=0; j--){
-                    if(temp_map[camX][j] == 6){
-                        break;
-                    }
-                    if(temp_map[camX][j] == 0){
-                        temp_map[camX][j] = 7;
-                    }
-                }
-                //카메라기준 왼쪽으로
-                for(int j=camY+1; j<M; j++){
-                    if(temp_map[camX][j] == 6){
-                        break;
-                    }
-                    if(temp_map[camX][j] == 0){
-                        temp_map[camX][j] = 7;
-                    }
-                }
-                //카메라기준 오른쪽으로
+                go_left(camX, camY);
+                go_right(camX, camY);
             }
             else if(i == 1){
-                for(int j=camX-1; j>=0; j--){
-                    if(temp_map[j][camY] == 6){
-                        break;
-                    }
-                    if(temp_map[j][camY] == 0){
-                        temp_map[j][camY] = 7;
-                    }
-                }
-                //카메라기준 위쪽으로
-                for(int j=camX+1; j<N; j++){
-                    if(temp_map[j][camY] == 6){
-                        break;
-                    }
-                    if(temp_map[j][camY] == 0){
-                        temp_map[j][camY] = 7;
-                    }
-                }
-                //카메라기준 아래쪽으로
+                go_up(camX, camY);
+                go_down(camX, camY);
             }
 
-            for(int j=0; j<N; j++){
-                for(int k=0; k<M; k++){
-                    if(temp_map[j][k] == 0){
-                        zeroCount++;
-                    }
-                }
-            }
+            int zeroCount = zero_count();
 
             if(result > zeroCount){
                 changed = true;
@@ -139,101 +151,28 @@ void edit_map(int camX, int camY){
     }
     else if(map[camX][camY] == 3){
         for(int i=0; i<4; i++){
-            for(int j=0; j<N; j++){
-                for(int k=0; k<M; k++){
-                    temp_map[j][k] = map[j][k];
-                }
-            }
+            map_initialize();
+
             changed = false;
-            zeroCount = 0;
+
             if(i == 0){
-                for(int j=camX-1; j>=0; j--){
-                    if(temp_map[j][camY] == 6){
-                        break;
-                    }
-                    if(temp_map[j][camY] == 0){
-                        temp_map[j][camY] = 7;
-                    }
-                }
-                //카메라기준 위쪽으로
-                for(int j=camY+1; j<M; j++){
-                    if(temp_map[camX][j] == 6){
-                        break;
-                    }
-                    if(temp_map[j][camY] == 0){
-                        temp_map[camX][j] = 7;
-                    }
-                }
-                //카메라기준 오른쪽으로
+                go_up(camX, camY);
+                go_right(camX, camY);
             }
             else if(i == 1){
-                for(int j=camY+1; j<M; j++){
-                    if(temp_map[camX][j] == 6){
-                        break;
-                    }
-                    if(temp_map[camX][j] == 0){
-                        temp_map[camX][j] = 7;
-                    }
-                }
-                //카메라기준 오른쪽으로
-                for(int j=camX+1; j<N; j++){
-                    if(temp_map[j][camY] == 6){
-                        break;
-                    }
-                    if(temp_map[j][camY] == 0){
-                        temp_map[j][camY] = 7;
-                    }
-                }
-                //카메라기준 아래쪽으로
+                go_right(camX, camY);
+                go_down(camX, camY);
             }
             else if(i == 2){
-                for(int j=camX+1; j<N; j++){
-                    if(temp_map[j][camY] == 6){
-                        break;
-                    }
-                    if(temp_map[j][camY] == 0){
-                        temp_map[j][camY] = 7;
-                    }
-                }
-                //카메라기준 아래쪽으로
-                for(int j=camY-1; j>=0; j--){
-                    if(temp_map[camX][j] == 6){
-                        break;
-                    }
-                    if(temp_map[camX][j] == 0){
-                        temp_map[camX][j] = 7;
-                    }
-                }
-                //카메라기준 왼쪽으로
+                go_down(camX, camY);
+                go_left(camX, camY);
             }
             else if(i == 3){
-                for(int j=camY-1; j>=0; j--){
-                    if(temp_map[camX][j] == 6){
-                        break;
-                    }
-                    if(temp_map[camX][j] == 0) {
-                        temp_map[camX][j] = 7;
-                    }
-                }
-                //카메라기준 왼쪽으로
-                for(int j=camX-1; j>=0; j--){
-                    if(temp_map[j][camY] == 6){
-                        break;
-                    }
-                    if(temp_map[j][camY] == 0){
-                        temp_map[j][camY] = 7;
-                    }
-                }
-                //카메라기준 위쪽으로
+                go_left(camX, camY);
+                go_up(camX, camY);
             }
 
-            for(int j=0; j<N; j++){
-                for(int k=0; k<M; k++){
-                    if(temp_map[j][k] == 0){
-                        zeroCount++;
-                    }
-                }
-            }
+            int zeroCount = zero_count();
 
             if(result > zeroCount){
                 changed = true;
@@ -250,138 +189,32 @@ void edit_map(int camX, int camY){
     }
     else if(map[camX][camY] == 4){
         for(int i=0; i<4; i++){
-            for(int j=0; j<N; j++){
-                for(int k=0; k<M; k++){
-                    temp_map[j][k] = map[j][k];
-                }
-            }
+            map_initialize();
+
             changed = false;
-            zeroCount = 0;
 
             if(i == 0){
-                for(int j=camY-1; j>=0; j--){
-                    if(temp_map[camX][j] == 6){
-                        break;
-                    }
-                    if(temp_map[camX][j] == 0){
-                        temp_map[camX][j] = 7;
-                    }
-                }
-                //카메라기준 왼쪽으로
-                for(int j=camX-1; j>=0; j--){
-                    if(temp_map[j][camY] == 6){
-                        break;
-                    }
-                    if(temp_map[j][camY] == 0){
-                        temp_map[j][camY] = 7;
-                    }
-                }
-                //카메라기준 위쪽으로
-                for(int j=camY+1; j<M; j++){
-                    if(temp_map[camX][j] == 6){
-                        break;
-                    }
-                    if(temp_map[camX][j] == 0){
-                        temp_map[camX][j] = 7;
-                    }
-                }
-                //카메라기준 오른쪽으로
+                go_left(camX, camY);
+                go_up(camX, camY);
+                go_right(camX, camY);
             }
             else if(i == 1){
-                for(int j=camX-1; j>=0; j--){
-                    if(temp_map[j][camY] == 6){
-                        break;
-                    }
-                    if(temp_map[j][camY] == 0){
-                        temp_map[j][camY] = 7;
-                    }
-                }
-                //카메라기준 위쪽으로
-                for(int j=camY+1; j<M; j++){
-                    if(temp_map[camX][j] == 6){
-                        break;
-                    }
-                    if(temp_map[camX][j] == 0){
-                        temp_map[camX][j] = 7;
-                    }
-                }
-                //카메라기준 오른쪽으로
-                for(int j=camX+1; j<N; j++){
-                    if(temp_map[j][camY] == 6){
-                        break;
-                    }
-                    if(temp_map[j][camY] == 0){
-                        temp_map[j][camY] = 7;
-                    }
-                }
-                //카메라기준 아래쪽으로
+                go_up(camX, camY);
+                go_right(camX, camY);
+                go_down(camX, camY);
             }
             else if(i == 2){
-                for(int j=camY+1; j<M; j++){
-                    if(temp_map[camX][j] == 6){
-                        break;
-                    }
-                    if(temp_map[camX][j] == 0){
-                        temp_map[camX][j] = 7;
-                    }
-                }
-                //카메라기준 오른쪽으로
-                for(int j=camX+1; j<N; j++){
-                    if(temp_map[j][camY] == 6){
-                        break;
-                    }
-                    if(temp_map[j][camY] == 0){
-                        temp_map[j][camY] = 7;
-                    }
-                }
-                //카메라기준 아래쪽으로
-                for(int j=camY-1; j>=0; j--){
-                    if(temp_map[camX][j] == 6){
-                        break;
-                    }
-                    if(temp_map[camX][j] == 0){
-                        temp_map[camX][j] = 7;
-                    }
-                }
-                //카메라기준 왼쪽으로
+                go_right(camX, camY);
+                go_down(camX, camY);
+                go_left(camX, camY);
             }
             else if(i == 3){
-                for(int j=camX+1; j<N; j++){
-                    if(temp_map[j][camY] == 6){
-                        break;
-                    }
-                    if(temp_map[j][camY] == 0){
-                        temp_map[j][camY] = 7;
-                    }
-                }
-                //카메라기준 아래쪽으로
-                for(int j=camY-1; j>=0; j--){
-                    if(temp_map[camX][j] == 6){
-                        break;
-                    }
-                    if(temp_map[camX][j] == 0){
-                        temp_map[camX][j] = 7;
-                    }
-                }
-                //카메라기준 왼쪽으로
-                for(int j=camX-1; j>=0; j--){
-                    if(temp_map[j][camY] == 6){
-                        break;
-                    }
-                    if(temp_map[j][camY] == 0){
-                        temp_map[j][camY] = 7;
-                    }
-                }
-                //카메라기준 위쪽으로
+                go_down(camX, camY);
+                go_left(camX, camY);
+                go_up(camX, camY);
             }
 
-            for(int j=0; j<N; j++){
-                for(int k=0; k<M; k++){
-                    if(temp_map[j][k] == 0){
-                        zeroCount++;
-                    }
-                }
-            }
+            int zeroCount = zero_count();
 
             if(result > zeroCount){
                 changed = true;
@@ -397,51 +230,23 @@ void edit_map(int camX, int camY){
         }
     }
     else if(map[camX][camY] == 5){
-        for(int j=0; j<N; j++){
-            for(int k=0; k<M; k++){
-                temp_map[j][k] = map[j][k];
-            }
-        }
-        for(int j=camY-1; j>=0; j--){
-            if(temp_map[camX][j] == 6){
-                break;
-            }
-            if(temp_map[camX][j] == 0){
-                temp_map[camX][j] = 7;
-            }
-        }
-        //카메라기준 왼쪽으로
-        for(int j=camX-1; j>=0; j--){
-            if(temp_map[j][camY] == 6){
-                break;
-            }
-            if(temp_map[j][camY] == 0){
-                temp_map[j][camY] = 7;
-            }
-        }
-        //카메라기준 위쪽으로
-        for(int j=camY+1; j<M; j++){
-            if(temp_map[camX][j] == 6){
-                break;
-            }
-            if(temp_map[camX][j] == 0){
-                temp_map[camX][j] = 7;
-            }
-        }
-        //카메라기준 오른쪽으로
-        for(int j=camX+1; j<N; j++){
-            if(temp_map[j][camY] == 6){
-                break;
-            }
-            if(temp_map[j][camY] == 0){
-                temp_map[j][camY] = 7;
-            }
-        }
-        //카메라기준 아래쪽으로
+        map_initialize();
+        go_left(camX, camY);
+        go_right(camX, camY);
+        go_down(camX, camY);
+        go_up(camX, camY);
 
-        for(int j=0; j<N; j++){
-            for(int k=0; k<M; k++){
-                direct_map[j][k] = temp_map[j][k];
+        int zeroCount = zero_count();
+
+        if(result > zeroCount){
+            changed = true;
+            result = zeroCount;
+        }
+        if(changed){
+            for(int j=0; j<N; j++){
+                for(int k=0; k<M; k++){
+                    direct_map[j][k] = temp_map[j][k];
+                }
             }
         }
     }
@@ -471,16 +276,6 @@ int main(){
     for(int i=0; i<tvs.size(); i++){
         edit_map(tvs[i].first, tvs[i].second);
     }
-
-    int zeroCount = 0;
-    for(int i=0; i<N; i++){
-        for(int j=0; j<M; j++){
-            if(map[i][j] == 0){
-                zeroCount++;
-            }
-        }
-    }
-    result = zeroCount;
 
     cout << result << '\n';
 
