@@ -4,72 +4,80 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <cstring>
 
 using namespace std;
 
 int N, M;
-int answer = 9999999;
-int map[51][51];
-bool used[14];
+int map[50][50];
+bool remain[13];
+int result = 9999999;
+
 vector<pair<int, int>> houses;
 vector<pair<int, int>> chickens;
 
-void distanceSum(){
-    int result = 0;
-
-    for(int i=0; i<houses.size(); i++){
-        int distance = 9999999;
-        for(int j=0; j<chickens.size(); j++){
-            if(used[j]){
-                int houseX = houses[i].first;
-                int houseY = houses[i].second;
-                int chickenX = chickens[j].first;
-                int chickenY = chickens[j].second;
-
-                int temp = abs(houseX - chickenX) + abs(houseY - chickenY);
-                distance = min(temp, distance);
+void DFS(int start, int cnt){
+//    cout << start << ' ' << cnt << '\n';
+//    for(int i=0; i<13; i++){
+//        if(remain[i]){
+//            cout << "Include: " << i << ' ';
+//        }
+//    }
+//    cout << '\n';
+    if(start > chickens.size()){
+        return;
+    }
+    if(cnt == M){
+        int temp = 0;
+        for(int i=0; i<houses.size(); i++){
+            int distance = 9999999;
+            for(int j=0; j<chickens.size(); j++){
+                if(remain[j]){
+                    distance = min(distance, abs(houses[i].first - chickens[j].first) + abs(houses[i].second - chickens[j].second));
+                }
             }
+            temp += distance;
         }
-        result += distance;
-    }
+        result = min(result, temp);
 
-    answer = min(answer, result);
-}
-
-void DFS(int cnt, int currentCnt){
-    if(cnt > chickens.size()){
-        return;
-    }
-    if(currentCnt == M){
-        distanceSum();
         return;
     }
 
-    used[cnt] = true;
-    DFS(cnt+1, currentCnt+1);
-    used[cnt] = false;
-    DFS(cnt+1, currentCnt);
+//    for(int i=start; i<chickens.size(); i++){
+//        if(remain[i]){
+//            continue;
+//        }
+//        remain[i] = true;
+//        DFS(start+1, cnt+1);
+//        remain[i] = false;
+//    }
+    remain[start] = true;
+    DFS(start+1, cnt+1);
+    //chickens[start+1]을 포함하겠다
+    remain[start] = false;
+    DFS(start+1, cnt);
+    //chickens[start+1]을 포함하지 않고 다른 경우를 탐색하겠다
 }
 
 int main(){
+    memset(map, -1, sizeof(map));
     cin >> N >> M;
 
-    for(int i=1; i<=N; i++){
-        for(int j=1; j<=N; j++){
+    for(int i=0; i<N; i++){
+        for(int j=0; j<N; j++){
             cin >> map[i][j];
-            if(map[i][j] == 2){
-                chickens.push_back(make_pair(i, j));
-                map[i][j] = 0;
-            }
-            else if(map[i][j] == 1){
+            if(map[i][j] == 1){
                 houses.push_back(make_pair(i, j));
+            }
+            else if(map[i][j] == 2){
+                chickens.push_back(make_pair(i, j));
             }
         }
     }
 
     DFS(0, 0);
 
-    cout << answer << '\n';
+    cout << result << '\n';
 
     return 0;
 }

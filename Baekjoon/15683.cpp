@@ -65,14 +65,6 @@ void go_down(CCTV cctv, int past_map[8][8]){
     }
 }
 
-void temp_initialize(){
-    for(int i=0; i<N; i++){
-        for(int j=0; j<M; j++){
-            temp_map[i][j] = map[i][j];
-        }
-    }
-}
-
 void DFS(int cnt, int past_map[8][8]){
     int current_map[8][8];
 
@@ -112,7 +104,6 @@ void DFS(int cnt, int past_map[8][8]){
             }
             cctvs[cnt].visit = true;
             DFS(cnt+1, current_map);
-            temp_initialize();
             cctvs[cnt].visit = false;
         }
     }
@@ -133,7 +124,6 @@ void DFS(int cnt, int past_map[8][8]){
             }
             cctvs[cnt].visit = true;
             DFS(cnt+1, current_map);
-            temp_initialize();
             cctvs[cnt].visit = false;
         }
     }
@@ -162,7 +152,6 @@ void DFS(int cnt, int past_map[8][8]){
             }
             cctvs[cnt].visit = true;
             DFS(cnt+1, current_map);
-            temp_initialize();
             cctvs[cnt].visit = false;
         }
     }
@@ -195,7 +184,6 @@ void DFS(int cnt, int past_map[8][8]){
             }
             cctvs[cnt].visit = true;
             DFS(cnt+1, current_map);
-            temp_initialize();
             cctvs[cnt].visit = false;
         }
     }
@@ -211,7 +199,6 @@ void DFS(int cnt, int past_map[8][8]){
         go_left(cctvs[cnt], current_map);
         cctvs[cnt].visit = true;
         DFS(cnt+1, current_map);
-        temp_initialize();
         cctvs[cnt].visit = false;
     }
 }
