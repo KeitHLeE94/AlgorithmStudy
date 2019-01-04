@@ -1,36 +1,36 @@
+//
+// Created by Keith_Lee on 04/01/2019.
+//
+
 #include <iostream>
-#include <algorithm>
 
 using namespace std;
 
 int N;
-int stairs[301];
-int DP[301];
 
-int main() {
-	cin >> N;
+int max(int a, int b){
+    return (a > b) ? a : b;
+}
 
-	for (int i = 1; i <= N; i++) {
-		cin >> stairs[i];
-	}
+int main(){
+    cin >> N;
 
-	for (int i = 1; i <= 3 && i <= N; i++) {
-		if (i != 3) {
-			DP[i] = stairs[i] + DP[i - 1];
-			//i=1: 첫 계단, i=2: 첫 계단 + 두번째 계단.
-		}
-		else {
-			DP[i] = max(stairs[i] + DP[i - 2], stairs[i] + stairs[i - 1]);
-			//max(3번째 계단 + 첫 계단, 3번째 계단 + 2번째 계단)
-		}
-	}
+    int DP[N+1];
+    int score[N+1];
 
-	for (int i = 4; i <= N; i++) {
-		DP[i] = max(stairs[i] + DP[i - 2], stairs[i] + stairs[i - 1] + DP[i - 3]);
-		//max(4번째 계단 + 첫 계단 + 두번째 계단, 4번째 계단 + 3번째 계단 + 첫 계단), ...
-	}
+    for(int i=1; i<=N; i++){
+        cin >> score[i];
+    }
 
-	cout << DP[N] << '\n';
+    DP[1] = score[1];
+    DP[2] = max(score[1] + score[2], score[2]);
+    DP[3] = max(score[1] + score[3], score[2] + score[3]);
 
-	return 0;
+    for(int i=4; i<=N; i++){
+        DP[i] = max(DP[i-2] + score[i], DP[i-3] + score[i] + score[i-1]);
+    }
+
+    cout << DP[N] << '\n';
+
+    return 0;
 }
