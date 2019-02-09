@@ -10,20 +10,21 @@ using namespace std;
 
 int N;
 int result = 0;
-int num = 0;
+int map[20][20] = {0, };
+
 string progress = "MMMMM";
 
-int (*push(int direction, int (*map)[20]))[20]{ // 이동시킨 후 바뀐 map 리턴.
+int (*push(char direction, int (*tempMap)[20]))[20]{ // 이동시킨 후 바뀐 map 리턴.
     // 상
-    if(direction == 1){
+    if(direction == 'U'){
         for(int i=0; i<N; i++){
             vector<int> toMove; // 위로 이동시킬 숫자들
             queue<int> merge; // 이동 후 같은 숫자일때 합치고 저장
 
             for(int j=0; j<N; j++){
-                if(map[j][i] != 0){ // 위로 이동시킬 숫자가 있으면
-                    toMove.push_back(map[j][i]); // 벡터에 넣고
-                    map[j][i] = 0; // 숫자 자리를 0으로 만든다.
+                if(tempMap[j][i] != 0){ // 위로 이동시킬 숫자가 있으면
+                    toMove.push_back(tempMap[j][i]); // 벡터에 넣고
+                    tempMap[j][i] = 0; // 숫자 자리를 0으로 만든다.
                 }
             }
 
@@ -43,7 +44,7 @@ int (*push(int direction, int (*map)[20]))[20]{ // 이동시킨 후 바뀐 map �
             int index = 0;
 
             while(!merge.empty()){ // 큐를 돌면서
-                map[index][i] = merge.front(); // 바뀐 숫자를 맵에 반영한다.
+                tempMap[index][i] = merge.front(); // 바뀐 숫자를 맵에 반영한다.
                 merge.pop();
                 index++;
             }
@@ -51,15 +52,15 @@ int (*push(int direction, int (*map)[20]))[20]{ // 이동시킨 후 바뀐 map �
     }
 
     // 하
-    if(direction == 2){
+    if(direction == 'D'){
         for(int i=0; i<N; i++){
             vector<int> toMove; // 아래로 이동시킬 숫자들
             queue<int> merge; // 이동 후 같은 숫자일때 합치고 저장
 
             for(int j=N-1; j>=0; j--){ // 아래쪽부터 돌거임
-                if(map[j][i] != 0){ // 아래로 이동시킬 숫자가 있으면
-                    toMove.push_back(map[j][i]); // 벡터에 넣고
-                    map[j][i] = 0; // 숫자 자리를 0으로 만든다.
+                if(tempMap[j][i] != 0){ // 아래로 이동시킬 숫자가 있으면
+                    toMove.push_back(tempMap[j][i]); // 벡터에 넣고
+                    tempMap[j][i] = 0; // 숫자 자리를 0으로 만든다.
                 }
             }
 
@@ -79,7 +80,7 @@ int (*push(int direction, int (*map)[20]))[20]{ // 이동시킨 후 바뀐 map �
             int index = 0;
 
             while(!merge.empty()){ // 큐를 돌면서
-                map[N-1-index][i] = merge.front(); // 바뀐 숫자를 맵에 반영한다.
+                tempMap[N-1-index][i] = merge.front(); // 바뀐 숫자를 맵에 반영한다.
                 merge.pop();
                 index++;
             }
@@ -87,15 +88,15 @@ int (*push(int direction, int (*map)[20]))[20]{ // 이동시킨 후 바뀐 map �
     }
 
     // 좌
-    if(direction == 3){
+    if(direction == 'L'){
         for(int i=0; i<N; i++){
             vector<int> toMove; // 왼쪽으로 이동시킬 숫자들
             queue<int> merge; // 이동 후 같은 숫자일때 합치고 저장
 
             for(int j=0; j<N; j++){
-                if(map[i][j] != 0){ // 왼쪽으로 이동시킬 숫자가 있으면
-                    toMove.push_back(map[i][j]); // 벡터에 넣고
-                    map[i][j] = 0; // 숫자 자리를 0으로 만든다.
+                if(tempMap[i][j] != 0){ // 왼쪽으로 이동시킬 숫자가 있으면
+                    toMove.push_back(tempMap[i][j]); // 벡터에 넣고
+                    tempMap[i][j] = 0; // 숫자 자리를 0으로 만든다.
                 }
             }
 
@@ -115,7 +116,7 @@ int (*push(int direction, int (*map)[20]))[20]{ // 이동시킨 후 바뀐 map �
             int index = 0;
 
             while(!merge.empty()){ // 큐를 돌면서
-                map[i][index] = merge.front(); // 바뀐 숫자를 맵에 반영한다.
+                tempMap[i][index] = merge.front(); // 바뀐 숫자를 맵에 반영한다.
                 merge.pop();
                 index++;
             }
@@ -123,15 +124,15 @@ int (*push(int direction, int (*map)[20]))[20]{ // 이동시킨 후 바뀐 map �
     }
 
     // 우
-    if(direction == 4){
+    if(direction == 'R'){
         for(int i=0; i<N; i++){
             vector<int> toMove; // 오른쪽으로 이동시킬 숫자들
             queue<int> merge; // 이동 후 같은 숫자일때 합치고 저장
 
             for(int j=N-1; j>=0; j--){ // 오른쪽부터 돌거임
-                if(map[i][j] != 0){ // 오른쪽으로 이동시킬 숫자가 있으면
-                    toMove.push_back(map[i][j]); // 벡터에 넣고
-                    map[i][j] = 0; // 숫자 자리를 0으로 만든다.
+                if(tempMap[i][j] != 0){ // 오른쪽으로 이동시킬 숫자가 있으면
+                    toMove.push_back(tempMap[i][j]); // 벡터에 넣고
+                    tempMap[i][j] = 0; // 숫자 자리를 0으로 만든다.
                 }
             }
 
@@ -151,37 +152,42 @@ int (*push(int direction, int (*map)[20]))[20]{ // 이동시킨 후 바뀐 map �
             int index = 0;
 
             while(!merge.empty()){ // 큐를 돌면서
-                map[i][N-1-index] = merge.front(); // 바뀐 숫자를 맵에 반영한다.
+                tempMap[i][N-1-index] = merge.front(); // 바뀐 숫자를 맵에 반영한다.
                 merge.pop();
                 index++;
             }
         }
     }
 
-    return map;
+    return tempMap;
 }
 
-void DFS(int count, int (*map)[20]){
+void DFS(int count){
     if(count == 5){
+        int newMap[20][20] = {0, };
+        int (*temp)[20] = newMap;
+
         for(int i=0; i<N; i++){
             for(int j=0; j<N; j++){
-                cout << map[i][j] << ' ';
+                newMap[i][j] = map[i][j];
             }
-            cout << '\n';
         }
+
+        for(int i=0; i<progress.length(); i++){
+            temp = push(progress[i], temp);
+        }
+
         for(int i=0; i<N; i++){
             for(int j=0; j<N; j++){
-                if(map[i][j] > result){
-                    result = map[i][j];
+                newMap[i][j] = temp[i][j];
+                if(newMap[i][j] > result){
+                    result = newMap[i][j];
                 }
             }
         }
-        cout << progress << '\n';
-        cout << '\n';
+
         return;
     }
-
-    int (*newMap)[20];
 
     for(int i=1; i<=4; i++){
         if(i == 1){
@@ -196,15 +202,12 @@ void DFS(int count, int (*map)[20]){
         else if(i == 4){
             progress[count] = 'R';
         }
-        newMap = push(i, map);
-        DFS(count+1, newMap);
+        DFS(count+1);
     }
 }
 
 int main(){
     cin >> N;
-
-    int map[20][20] = {0, };
 
     for(int i=0; i<N; i++){
         for(int j=0; j<N; j++){
@@ -212,7 +215,7 @@ int main(){
         }
     }
 
-    DFS(0, map);
+    DFS(0);
 
     cout << result << '\n';
 
