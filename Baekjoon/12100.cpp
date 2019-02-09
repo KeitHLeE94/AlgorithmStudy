@@ -10,6 +10,8 @@ using namespace std;
 
 int N;
 int result = 0;
+int num = 0;
+string progress = "MMMMM";
 
 int (*push(int direction, int (*map)[20]))[20]{ // 이동시킨 후 바뀐 map 리턴.
     // 상
@@ -163,17 +165,37 @@ void DFS(int count, int (*map)[20]){
     if(count == 5){
         for(int i=0; i<N; i++){
             for(int j=0; j<N; j++){
+                cout << map[i][j] << ' ';
+            }
+            cout << '\n';
+        }
+        for(int i=0; i<N; i++){
+            for(int j=0; j<N; j++){
                 if(map[i][j] > result){
                     result = map[i][j];
                 }
             }
         }
+        cout << progress << '\n';
+        cout << '\n';
         return;
     }
 
     int (*newMap)[20];
 
     for(int i=1; i<=4; i++){
+        if(i == 1){
+            progress[count] = 'U';
+        }
+        else if(i == 2){
+            progress[count] = 'D';
+        }
+        else if(i == 3){
+            progress[count] = 'L';
+        }
+        else if(i == 4){
+            progress[count] = 'R';
+        }
         newMap = push(i, map);
         DFS(count+1, newMap);
     }
