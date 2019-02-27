@@ -12,7 +12,7 @@ int N;
 long long DP[101];
 
 long long max(vector<long long> v){
-    long long result = 0;
+    long long result = -1;
 
     for(int i=0; i<v.size(); i++){
         if(v[i] > result){
@@ -33,10 +33,13 @@ int main(){
     DP[2] = 2;
     DP[3] = 3;
     DP[4] = 4;
+    DP[5] = 5;
+    DP[6] = 6;
 
-    for(int i=5; i<=N; i++){
+    for(int i=7; i<=N; i++){
         vector<long long> temp;
-        for(int j=3; j<i; j++){
+
+        for(int j=3; j<=i; j++){
             temp.push_back(DP[i-j]*(j-1));
         }
 
