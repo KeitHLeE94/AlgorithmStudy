@@ -5,6 +5,8 @@
 #include <iostream>
 #include <queue>
 #include <vector>
+#include <string.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -19,14 +21,17 @@ int dx[] = {0, 0, 0, 0, 1, -1};
 int dy[] = {0, 0, 1, -1, 0, 0};
 int dz[] = {1, -1, 0, 0, 0, 0};
 
+int result = 99999999;
+
 void rotate(int partIndex, int degree){ // 몇층을 몇도로 돌릴것인가
+    if(degree == 0){
+        return;
+    }
+
     int temp[5][5] = {0, };
     memcpy(temp, setMap[partIndex], sizeof(int) * 25);
 
-    if(degree == 0){ // 그대로간다
-        return;
-    }
-    else if(degree == 1){ // 오른쪽으로 90도
+    if(degree == 1){ // 오른쪽으로 90도
         for(int i=0; i<5; i++){
             for(int j=0; j<5; j++){
                 setMap[partIndex][i][j] = temp[4-j][i];
@@ -66,23 +71,23 @@ int BFS(){
         }
 
         for(int v=0; v<points.size(); v++){
+            int currentZ = points[v].z;
             int currentX = points[v].x;
             int currentY = points[v].y;
-            int currentZ = points[v].z;
 
             if(currentZ == 4 && currentX == 4 && currentY == 4){
                 return distance;
             }
 
             for(int i=0; i<6; i++){
+                int nextZ = currentZ + dz[i];
                 int nextX = currentX + dx[i];
                 int nextY = currentY + dy[i];
-                int nextZ = currentZ + dz[i];
 
                 if(nextX >= 0 && nextX < 5 && nextY >= 0 && nextY < 5 && nextZ >= 0 && nextZ < 5){
-                    if(!visit[nextX][nextY][nextZ] && setMap[nextX][nextY][nextZ] == 1){
-                        visit[nextX][nextY][nextZ] = true;
-                        Queue.push({nextX, nextY, nextZ});
+                    if(!visit[nextZ][nextX][nextY] && setMap[nextZ][nextX][nextY] == 1){
+                        visit[nextZ][nextX][nextY] = true;
+                        Queue.push({nextZ, nextX, nextY});
                     }
                 }
             }
@@ -106,15 +111,15 @@ int main(){
     vector<int> perm = {0, 1, 2, 3, 4};
 
     do{
-        for(int i=0; i<5; i++){
-            memcpy(setMap[i], map[perm[i]], sizeof(int) * 25);
-        } // 바꾼 맵 초기화: 순열로 순서 배정
-
         for(int i=0; i<4; i++){
             for(int j=0; j<4; j++){
                 for(int k=0; k<4; k++){
                     for(int l=0; l<4; l++){
                         for(int m=0; m<4; m++){
+                            for(int n=0; n<5; n++){
+                                memcpy(setMap[n], map[perm[n]], sizeof(int) * 25);
+                            } // 바꾼 맵 초기화: 순열로 순서 배정
+
                             rotate(0, i);
                             rotate(1, j);
                             rotate(2, k);
@@ -122,10 +127,12 @@ int main(){
                             rotate(4, m);
                             // 각층 회전
 
-                            int temp = BFS();
+                            if(setMap[0][0][0] == 1 && setMap[4][4][4] == 1){
+                                int temp = BFS();
 
-                            if(temp > 0){
-                                cout << temp << '\n';
+                                if(temp > 0 && result > temp){
+                                    result = temp;
+                                }
                             }
                         }
                     }
@@ -135,7 +142,10 @@ int main(){
     }
     while(next_permutation(perm.begin(), perm.end()));
 
-    cout << '\n';
+    if(result == 99999999){
+        result = -1;
+    }
+    cout << result << '\n';
 
     return 0;
 }
