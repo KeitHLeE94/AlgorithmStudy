@@ -6,179 +6,181 @@
 
 using namespace std;
 
-char map[10][10];
-int redX, redY, blueX, blueY;
+class Point{
+public:
+    int x, y;
+
+    Point(){
+        x = -1;
+        y = -1;
+    }
+
+    Point(int x, int y){
+        this->x = x;
+        this->y = y;
+    }
+};
+
+int reverse(int dir){
+    int rd = 0;
+
+    if(dir == 0){
+        rd = 1;
+    }
+    else if(dir == 1){
+        rd = 0;
+    }
+    else if(dir == 2){
+        rd = 3;
+    }
+    else if(dir == 3){
+        rd = 2;
+    }
+
+    return rd;
+}
+
+int result = 111111111;
 int N, M;
-int result = 11;
 
-void DFS(string order){
-    cout << order << '\n';
+int dx[] = {0, 0, 1, -1};
+int dy[] = {1, -1, 0, 0};
 
-    if(order.length() > 10){
+void DFS(int direction, int count, char map[10][10], bool red, bool blue, Point R, Point B){
+    count++;
+    char tempMap[10][10];
+
+    for(int i=0; i<N; i++){
+        for(int j=0; j<M; j++){
+            tempMap[i][j] = map[i][j];
+        }
+    }
+
+    int first = 0; // 0이면 R먼저, 1이면 B먼저
+
+    if(direction == 0){
+        if(R.y < B.y){
+            first = 1;
+        }
+    }
+    else if(direction == 1){
+        if(R.y > B.y){
+            first = 1;
+        }
+    }
+    else if(direction == 2){
+        if(R.x < B.x){
+            first = 1;
+        }
+    }
+    else if(direction == 3){
+        if(R.x > B.x){
+            first = 1;
+        }
+    }
+
+    if(!first){
+        while(true){
+            int nextRX = R.x + dx[direction];
+            int nextRY = R.y + dy[direction];
+
+            if(tempMap[nextRX][nextRY] == '#'){
+                break;
+            }
+            if(tempMap[nextRX][nextRY] == 'O'){
+                tempMap[R.x][R.y] = '.';
+                R = Point(-1, -1);
+                red = true;
+                break;
+            }
+
+            tempMap[R.x][R.y] = '.';
+            tempMap[nextRX][nextRY] = 'R';
+            R = Point(nextRX, nextRY);
+        }
+        while(true){
+            int nextBX = B.x + dx[direction];
+            int nextBY = B.y + dy[direction];
+
+            if(tempMap[nextBX][nextBY] == '#' || tempMap[nextBX][nextBY] == 'R'){
+                break;
+            }
+            if(tempMap[nextBX][nextBY] == 'O'){
+                tempMap[B.x][B.y] = '.';
+                B = Point(-1, -1);
+                blue = true;
+                break;
+            }
+
+            tempMap[B.x][B.y] = '.';
+            tempMap[nextBX][nextBY] = 'B';
+            B = Point(nextBX, nextBY);
+        }
+    }
+    else{
+        while(true){
+            int nextBX = B.x + dx[direction];
+            int nextBY = B.y + dy[direction];
+
+            if(tempMap[nextBX][nextBY] == '#'){
+                break;
+            }
+            if(tempMap[nextBX][nextBY] == 'O'){
+                tempMap[B.x][B.y] = '.';
+                B = Point(-1, -1);
+                blue = true;
+                break;
+            }
+
+            tempMap[B.x][B.y] = '.';
+            tempMap[nextBX][nextBY] = 'B';
+            B = Point(nextBX, nextBY);
+        }
+        while(true){
+            int nextRX = R.x + dx[direction];
+            int nextRY = R.y + dy[direction];
+
+            if(tempMap[nextRX][nextRY] == '#' || tempMap[nextRX][nextRY] == 'B'){
+                break;
+            }
+            if(tempMap[nextRX][nextRY] == 'O'){
+                tempMap[R.x][R.y] = '.';
+                R = Point(-1, -1);
+                red = true;
+                break;
+            }
+
+            tempMap[R.x][R.y] = '.';
+            tempMap[nextRX][nextRY] = 'R';
+            R = Point(nextRX, nextRY);
+        }
+    }
+
+    if(count > 10){
         return;
     }
-
-    for(int i=0; i<order.length(); i++){
-        if(order[i] == 'L'){
-            int moveCount = 1;
-
-            while(redY - moveCount >= 0 && map[redX][redY - moveCount] == '.'){
-                moveCount++;
-            }
-
-            map[redX][redY] = '.';
-            redY -= moveCount;
-
-            if(map[redX][redY] == 'O'){
-                redX = -1;
-                redY = -1;
-            }
-            else{
-                map[redX][redY] = 'R';
-            }
-
-            moveCount = 1;
-
-            while(blueY - moveCount >= 0 && map[blueX][blueY - moveCount] == '.'){
-                moveCount++;
-            }
-
-            map[blueX][blueY] = '.';
-            blueY -= moveCount;
-
-            if(map[blueX][blueY] == 'O'){
-                blueX = -1;
-                blueY = -1;
-            }
-            else{
-                map[blueX][blueY] = 'B';
-            }
-        }
-        else if(order[i] == 'R'){
-            int moveCount = 1;
-
-            while(redY + moveCount < M && map[redX][redY + moveCount] == '.'){
-                moveCount++;
-            }
-
-            map[redX][redY] = '.';
-            redY += moveCount;
-
-            if(map[redX][redY] == 'O'){
-                redX = -1;
-                redY = -1;
-            }
-            else{
-                map[redX][redY] = 'R';
-            }
-
-            moveCount = 1;
-
-            while(blueY + moveCount < M && map[blueX][blueY + moveCount] == '.'){
-                moveCount++;
-            }
-
-            map[blueX][blueY] = '.';
-            blueY += moveCount;
-
-            if(map[blueX][blueY] == 'O'){
-                blueX = -1;
-                blueY = -1;
-            }
-            else{
-                map[blueX][blueY] = 'B';
-            }
-        }
-        else if(order[i] == 'U'){
-            int moveCount = 1;
-
-            while(redX - moveCount >= 0 && map[redX - moveCount][redY] == '.'){
-                moveCount++;
-            }
-
-            map[redX][redY] = '.';
-            redX -= moveCount;
-
-            if(map[redX][redY] == 'O'){
-                redX = -1;
-                redY = -1;
-            }
-            else{
-                map[redX][redY] = 'R';
-            }
-
-            moveCount = 1;
-
-            while(blueX - moveCount >= 0 && map[blueX - moveCount][blueY] == '.'){
-                moveCount++;
-            }
-
-            map[blueX][blueY] = '.';
-            blueX -= moveCount;
-
-            if(map[blueX][blueY] == 'O'){
-                blueX = -1;
-                blueY = -1;
-            }
-            else{
-                map[blueX][blueY] = 'B';
-            }
-        }
-        else if(order[i] == 'D'){
-            int moveCount = 1;
-
-            while(redX + moveCount < N && map[redX + moveCount][redY] == '.'){
-                moveCount++;
-            }
-
-            map[redX][redY] = '.';
-            redX += moveCount;
-
-            if(map[redX][redY] == 'O'){
-                redX = -1;
-                redY = -1;
-            }
-            else{
-                map[redX][redY] = 'R';
-            }
-
-            moveCount = 1;
-
-            while(blueX + moveCount >= 0 && map[blueX + moveCount][blueY] == '.'){
-                moveCount++;
-            }
-
-            map[blueX][blueY] = '.';
-            blueX += moveCount;
-
-            if(map[blueX][blueY] == 'O'){
-                blueX = -1;
-                blueY = -1;
-            }
-            else{
-                map[blueX][blueY] = 'B';
-            }
-        }
-
-        if(redX == -1 && redY == -1){
-            if(blueX != -1 && blueY != -1){
-                result = result > i+1 ? i+1 : result;
-                return;
-            }
+    if(blue){
+        return;
+    }
+    else{
+        if(red){
+            result = result > count ? count : result;
+            return;
         }
     }
 
-    string temp = order + 'L';
-    DFS(temp);
-    temp = order + 'R';
-    DFS(temp);
-    temp = order + 'U';
-    DFS(temp);
-    temp = order + 'D';
-    DFS(temp);
+    for(int i=0; i<4; i++){
+        if(i == reverse(direction) || i == direction){
+            continue;
+        }
+        DFS(i, count, tempMap, red, blue, R, B);
+    }
 }
 
 int main(){
+    char map[10][10];
+    Point R, B;
+
     cin >> N >> M;
 
     for(int i=0; i<N; i++){
@@ -189,20 +191,21 @@ int main(){
             map[i][j] = row[j];
 
             if(map[i][j] == 'R'){
-                redX = i;
-                redY = j;
+                R = Point(i, j);
             }
             else if(map[i][j] == 'B'){
-                blueX = i;
-                blueY = j;
+                B = Point(i, j);
             }
         }
     }
 
-    DFS("LLLLLLLLLL");
+    for(int i=0; i<4; i++){
+        DFS(i, 0, map, false, false, R, B);
+    }
 
-    cout << redX << ", " << redY << '\n';
-    cout << blueX << ", " << blueY << '\n';
+    if(result == 111111111){
+        result = -1;
+    }
 
     cout << result << '\n';
 
