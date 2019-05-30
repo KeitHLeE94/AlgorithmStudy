@@ -129,7 +129,6 @@ int main(){
             }
 
             for (int i = 0; i < temp.size(); i++) {
-//                cout << temp[i].x << ", " << temp[i].y << ": " << temp[i].size << '\n';
                 if (temp[i].y == fisher) {
                     if (temp[i].x < minX) {
                         minX = temp[i].x;
@@ -138,19 +137,17 @@ int main(){
                 }
             }
 
-            if(temp[minIndex].x > 0 && temp[minIndex].y > 0){
-                result += temp[minIndex].size;
-                temp[minIndex].size = -1;
-
-//                cout << "잡힘: " << temp[minIndex].x << ", " << temp[minIndex].y << ": " << temp[minIndex].size << '\n';
+            if(minIndex < temp.size()){
+                if(temp[minIndex].x > 0 && temp[minIndex].y > 0){
+                    result += temp[minIndex].size;
+                    temp[minIndex].size = -1;
+                }
             }
 
             bzero(map, sizeof(map));
 
             for (int i = 0; i < temp.size(); i++) {
                 if(temp[i].size >= 0){
-//                    cout << temp[i].x << ", " << temp[i].y << ": " << temp[i].size << '\n';
-
                     pair<pair<int, int>, int> moved = move(temp[i]);
 
                     int nextX = moved.first.first;
@@ -167,8 +164,6 @@ int main(){
                     }
                 }
             }
-
-//            cout << "=============================================" << '\n';
         }
     }
 
