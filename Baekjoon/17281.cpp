@@ -19,9 +19,10 @@ void proceed(vector<int> order){
 
     int base[4] = {0, }; // 1루 2루 3루 홈
 
-    int lastPlayer = 0;
+    int hitter = 0;
 
     while(true){
+
         if(out == 0){
             score += base[3];
             inning++;
@@ -29,73 +30,64 @@ void proceed(vector<int> order){
             base[1] = 0;
             base[2] = 0;
             base[3] = 0;
+            out = 3;
 
             if(inning > N){
                 break;
             }
         }
         else{
-            for(int i=lastPlayer+1; i<lastPlayer+10; i++){
-                if(innings[inning][order[i % 9]] == 0){
-                    out--;
-
-                    if(out == 0){
-                        lastPlayer = i % 9;
-                        break;
+            if(innings[inning][order[hitter % 9]] == 0){
+                out--;
+            }
+            else if(innings[inning][order[hitter % 9]] == 1){
+                for(int i=2; i>=0; i--){
+                    if(base[i] == 1){
+                        base[i+1]++;
+                        base[i]--;
                     }
                 }
-                else if(innings[inning][order[i % 9]] == 1){
-                    for(int j=2; j>=0; j--){
-                        if(base[j] > 0){
-                            base[j+1]++;
-                            base[j]--;
-                        }
-                    }
 
-                    base[0]++;
-                }
-                else if(innings[inning][order[i % 9]] == 2){
-                    for(int j=2; j>=0; j--){
-                        if(base[j] > 0){
-                            if(j+2 > 3){
-                                base[3]++;
-                            }
-                            else{
-                                base[j+2]++;
-                            }
-
-                            base[j]--;
-                        }
-                    }
-
-                    base[1]++;
-                }
-                else if(innings[inning][order[i % 9]] == 3){
-                    for(int j=2; j>=0; j--){
-                        if(base[j] > 0){
-                            if(j+3 > 3){
-                                base[3]++;
-                            }
-                            else{
-                                base[j+3]++;
-                            }
-
-                            base[j]--;
-                        }
-                    }
-
-                    base[2]++;
-                }
-                else if(innings[inning][order[i % 9]] == 4){
-                    for(int j=2; j>=0; j--){
-                        if(base[j] > 0){
+                base[0]++;
+            }
+            else if(innings[inning][order[hitter % 9]] == 2){
+                for(int i=2; i>=0; i--){
+                    if(base[i] == 1){
+                        if(i+2 > 3){
                             base[3]++;
                         }
-                    }
+                        else{
+                            base[i+2]++;
+                        }
 
-                    base[3]++;
+                        base[i]--;
+                    }
                 }
+
+                base[1]++;
             }
+            else if(innings[inning][order[hitter % 9]] == 3){
+                for(int i=2; i>=0; i--){
+                    if(base[i] == 1){
+                        base[3]++;
+                        base[i]--;
+                    }
+                }
+
+                base[2]++;
+            }
+            else if(innings[inning][order[hitter % 9]] == 4){
+                for(int i=2; i>=0; i--){
+                    if(base[i] == 1){
+                        base[3]++;
+                        base[i] = 0;
+                    }
+                }
+
+                base[3]++;
+            }
+
+            hitter++;
         }
     }
 
