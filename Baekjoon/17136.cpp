@@ -6,11 +6,9 @@
 
 using namespace std;
 
-int minValue = 30;
-bool start = false;
+int minValue = 999;
 
 int map[10][10] = {0, };
-int limit[5] = {5, 5, 5, 5, 5};
 
 void change(int r, int c, int size){
     for(int i=r; i<r+size; i++){
@@ -40,7 +38,7 @@ bool fit(int r, int c, int size){
     return true;
 }
 
-void DFS(int r, int c, int count){
+void DFS(int r, int c, int limit[5]){
     bool finish = true;
 
     for(int i=r; i<10; i++){
@@ -59,7 +57,19 @@ void DFS(int r, int c, int count){
     }
 
     if(finish){
-        minValue = minValue < count ? minValue : count;
+        int result = 0;
+        for(int i=0; i<5; i++){
+            result += (5 - limit[i]);
+
+            if(limit[i] < 0){
+                result = -1;
+                break;
+            }
+        }
+
+        if(result >= 0){
+            minValue = minValue < result ? minValue : result;
+        }
 
         return;
     }
@@ -75,7 +85,7 @@ void DFS(int r, int c, int count){
 
         limit[size-1]--;
         change(r, c, size);
-        DFS(r, c, count+1);
+        DFS(r, c, limit);
         revoke(r, c, size);
         limit[size-1]++;
     }
@@ -85,16 +95,14 @@ int main(){
     for(int i=0; i<10; i++){
         for(int j=0; j<10; j++){
             cin >> map[i][j];
-
-            if(map[i][j] == 1){
-                start = true;
-            }
         }
     }
 
-    DFS(0, 0, 0);
+    int limit[5] = {5, 5, 5, 5, 5};
 
-    if(start && minValue == 30){
+    DFS(0, 0, limit);
+
+    if(minValue == 999){
         cout << -1 << '\n';
     }
     else{
